@@ -19,22 +19,22 @@ The name "Cipherion" is associated exclusively with this project. Unauthorized u
 - [License ℹ️](#license-ℹ️)
 
 ## Overview 🔍
-**Cipherion** is a robust tool for encrypting and securely storing sensitive information using AES encryption. With its intuitive command-line interface and seamless MySQL integration, this tool allows you to manage your data efficiently and securely.
+**Cipherion** is a robust tool for encrypting and securely storing sensitive information using [AES](https://www.nist.gov/publications/advanced-encryption-standard-aes) encryption. With its intuitive command-line interface and seamless [MySQL](https://dev.mysql.com/downloads/mysql) integration, this tool allows you to manage your data efficiently and securely.
 
 ## Features ✨
-- **Robust AES encryption**: Safeguard your data with industry-standard encryption methods.
-- **MySQL Database integration**: Store and retrieve encrypted data with ease.
+- **[AES](https://www.nist.gov/publications/advanced-encryption-standard-aes) encryption**: Safeguard your data with industry-standard encryption methods.
+- **[MySQL](https://dev.mysql.com/downloads/mysql) Database integration**: Store and retrieve encrypted data with ease.
 - **Simple command-line interface**: User-friendly nature enables effortless navigation.
 - **Unique key generation**: Automatically create new encryption keys for each session to enhance security.
 
 ## Installation ⚙️
 ### Requirements
-- Download [Python](https://python.org/).
+- Download [Python](https://www.python.org/downloads/).
 - Download [MySQL Community Server](https://dev.mysql.com/downloads/mysql).
 - Download [Visual Studio Code](https://code.visualstudio.com/download) or any text editor/IDE.
 ### Compatibility
-- The application is compatible with Python version 3.x and works on any OS that supports it (Windows, macOS, Linux).
-- MySQL Community Server version 8.x or higher is recommended for optimal performance and compatibility.
+- The application is compatible with [Python](https://www.python.org/downloads/) version 3.x and works on any OS that supports it (Windows, macOS, Linux).
+- [MySQL Community Server](https://dev.mysql.com/downloads/mysql) version 8.x or higher is recommended for optimal performance and compatibility.
 ### File structure
 ```markdown
 └── /root
@@ -59,7 +59,7 @@ The name "Cipherion" is associated exclusively with this project. Unauthorized u
     1. Click the `Code` button.
     2. From the drop-down that appears, click `Download ZIP` to download the entire repository as a ZIP folder.
 
-3. Extract the files to a new folder and open it with Visual Studio Code or any text editor/IDE of your choice.
+3. Extract the files to a new folder and open it with [Visual Studio Code](https://code.visualstudio.com/download) or any text editor/IDE of your choice.
 
 4. **Install required packages**: Run the command to get all dependencies:
     ```bash
@@ -74,13 +74,13 @@ python main.py
 
 ## How it works ❓
 1. **Connecting to MySQL**:
-    - Upon launching, the application prompts you to enter your MySQL root password and the desired database name. It checks for the database's existence and creates it if necessary.
+    - Upon launching, the application prompts you to enter your [MySQL](https://dev.mysql.com/downloads/mysql) root password and the desired database name. It checks for the database's existence and creates it if necessary.
 
 2. **Encrypting data**:
-    - You can choose to encrypt data by entering the text you wish to secure. The application generates a unique key and initialization vector (IV) for AES encryption, then stores the encrypted data in the database.
+    - You can choose to encrypt data by entering the text you wish to secure. The application generates a unique key and initialization vector (IV) for [AES](https://www.nist.gov/publications/advanced-encryption-standard-aes) encryption, then stores the encrypted data in the database.
 
 3. **Storing encrypted data**:
-    - The application saves both the encrypted text and the encryption key into a MySQL table. Each record is assigned a unique ID for easy retrieval.
+    - The application saves both the encrypted text and the encryption key into a [MySQL](https://dev.mysql.com/downloads/mysql) table. Each record is assigned a unique ID for easy retrieval.
 
 4. **Decrypting data**:
     - To decrypt, you input the record ID associated with the encrypted entry. The application retrieves the corresponding encrypted text and key from the database, then decrypts the text using the key, revealing the original message.
