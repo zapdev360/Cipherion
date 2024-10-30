@@ -1,20 +1,9 @@
 from src.welcome import welcome
 from src.process import encrypt, decrypt
 from src.db import dbcon, dbsave, dbget
-import tkinter as tk
-from src.gui import EncryptionApp
 
 def main():
-    root = tk.Tk()
-    app = EncryptionApp(root)
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
-
-
-#def main():
-   # welcome()
+    welcome()
 
     while True:
         dbpass = input("\nEnter the password to connect to MySQL: ")

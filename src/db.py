@@ -1,6 +1,6 @@
 import mysql.connector as mycon
 
-def dbcon(dbpass, dbname):
+def dbcon (dbpass, dbname):
     try:
         con = mycon.connect(host='localhost', user='root', password=dbpass)
         cursor = con.cursor()
@@ -22,6 +22,7 @@ def dbcon(dbpass, dbname):
             print("\nAn unexpected error occurred!", err)
 
         return False
+        
 
 def dbsave(encdata, key, dbpass, dbname):
     con = mycon.connect(host='localhost', user='root', password=dbpass, database=dbname)
