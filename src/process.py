@@ -5,10 +5,10 @@ import base64 as b64
 import warnings
 from cryptography.utils import CryptographyDeprecationWarning
 
-# Suppress CryptographyDeprecationWarning specifically
-warnings.filterwarnings("ignore", category=CryptographyDeprecationWarning)
 
-# Your cryptography code here
+warnings.filterwarnings("ignore", category=CryptographyDeprecationWarning) # to suppress Cryptography Deprecation Warning specifically
+
+
 
 # Dictionary of supported algorithms and their key sizes
 SUPPORTED_ALGORITHMS = {
