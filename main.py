@@ -1,12 +1,13 @@
 from src.welcome import welcome
 from src.process import encrypt, decrypt
 from src.db import dbcon, dbsave, dbget
-
+from src.utils.input_utils import get_password
 def main():
     welcome()
     
     while True:
-        dbpass = input("\nEnter the password to connect to MySQL: ")
+        prompt = "\nEnter the password to connect to MySQL: " # password prompt
+        dbpass = get_password(prompt)
         dbname = input("Enter the name of the database: ")
         if dbcon(dbpass, dbname):
             break
