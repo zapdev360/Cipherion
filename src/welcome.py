@@ -26,3 +26,4 @@ def welcome():
     print(sep)
 
 # Note: The call to welcome() was removed from this script as it is controlled by the main execution flow in main.py
+
