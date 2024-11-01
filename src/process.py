@@ -2,6 +2,13 @@ from cryptography.hazmat.primitives.ciphers import Cipher as CipherClass, algori
 from cryptography.hazmat.primitives import padding as pd
 import os
 import base64 as b64
+import warnings
+from cryptography.utils import CryptographyDeprecationWarning
+
+
+warnings.filterwarnings("ignore", category=CryptographyDeprecationWarning) # to suppress Cryptography Deprecation Warning specifically
+
+
 
 # Dictionary of supported algorithms and their key sizes
 SUPPORTED_ALGORITHMS = {
