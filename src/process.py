@@ -4,13 +4,10 @@ import os
 import base64 as b64
 import warnings
 from cryptography.utils import CryptographyDeprecationWarning
+from src.utils.color import color
 
+warnings.filterwarnings("ignore", category=CryptographyDeprecationWarning)
 
-warnings.filterwarnings("ignore", category=CryptographyDeprecationWarning) # to suppress Cryptography Deprecation Warning specifically
-
-
-
-# Dictionary of supported algorithms and their key sizes
 SUPPORTED_ALGORITHMS = {
     'AES': alg.AES,
     'TripleDES': alg.TripleDES,
@@ -19,12 +16,11 @@ SUPPORTED_ALGORITHMS = {
 
 def encrypt(ptext, algorithm='AES'):
     if algorithm not in SUPPORTED_ALGORITHMS:
-        raise ValueError(f"Unsupported algorithm: {algorithm}")
+        raise ValueError(color('[FAIL]', f"Unsupported algorithm: {algorithm}", newline=True))
     
-    # Generate key and IV based on algorithm requirements
     key_size = 32 if algorithm == 'AES' else 24 if algorithm == 'TripleDES' else 16
     key = os.urandom(key_size)
-    iv = os.urandom(16 if algorithm == 'AES' else 8)  # IV size for Blowfish and TripleDES is 8 bytes
+    iv = os.urandom(16 if algorithm == 'AES' else 8)
     
     cipher = CipherClass(SUPPORTED_ALGORITHMS[algorithm](key), modes.CBC(iv))
     enc = cipher.encryptor()
@@ -34,15 +30,15 @@ def encrypt(ptext, algorithm='AES'):
     encdata = enc.update(pdata) + enc.finalize()
     
     encdatab64 = b64.b64encode(iv + encdata).decode('utf-8')
-    
-    return key, encdatab64  # Removed algorithm return since it's not necessary here
+
+    return key, encdatab64
 
 def decrypt(ctext, key, algorithm='AES'):
     if algorithm not in SUPPORTED_ALGORITHMS:
-        raise ValueError(f"Unsupported algorithm: {algorithm}")
+        raise ValueError(color('[FAIL]', f"Unsupported algorithm: {algorithm}", newline=True))
     
     encdata = b64.b64decode(ctext)
-    iv = encdata[:16 if algorithm == 'AES' else 8]  # IV size for Blowfish and TripleDES is 8 bytes
+    iv = encdata[:16 if algorithm == 'AES' else 8]
     ctext = encdata[16 if algorithm == 'AES' else 8:]
     
     cipher = CipherClass(SUPPORTED_ALGORITHMS[algorithm](key), modes.CBC(iv))

@@ -1,75 +1,83 @@
-from src.welcome import welcome
+from src.welcome import welcome, sep
 from src.process import encrypt, decrypt
 from src.db import dbcon, dbsave, dbget
-from src.utils.input_utils import get_password
+from src.utils.mask import maskpass
+from src.utils.color import color
+from src.utils.table import menutab, algotab
+
 def main():
     welcome()
     
     while True:
-        prompt = "\nEnter the password to connect to MySQL: " # password prompt
-        dbpass = get_password(prompt)
-        dbname = input("Enter the name of the database: ")
+        prompt = color('[INPUT]', "Enter the password to connect to MySQL: ", newline=True)
+        dbpass = maskpass(prompt)
+        dbname = input(color('[INPUT]', "Enter the name of the database: "))
+        
         if dbcon(dbpass, dbname):
             break
         else:
-            print("Please try again...")
+            print(color('[FAIL]', "Please try again..."))
     
     while True:
-        print("\nChoices:\n1. Encrypt Data\n2. Decrypt Data\n3. Exit")
-        choice = input("\nEnter choice (1, 2 or 3): ")
+        print('\n', sep, '\n')
+        menutab()
+        choice = input(color('[INPUT]', "Enter choice (1, 2 or 3): ", newline=True))
         
         if choice == '1':
             while True:
-                ptext = input("\nEnter the text to encrypt: ")
+                ptext = input(color('[INPUT]', "Enter the text to encrypt: "))
                 if ptext.strip():
                     break
                 else:
-                    print("\nText cannot be empty or contain only whitespace(s).\nPlease try again...")
+                    print(color('[INFO]', "Text cannot be empty or contain only whitespace(s)!", newline=True))
+                    print(color('[FAIL]', "Please try again...\n"))
             
-            print("\nChoose encryption algorithm:")
-            print("1. AES\n2. TripleDES\n3. Blowfish")
-            alg_choice = input("\nEnter choice (1, 2, or 3): ")
+            print()
+            algotab()
+            print(color('[INFO]', "Encryption via AES is recommended, unless you have specific objective(s).", newline=True))
+            algchoice = input(color('[INPUT]', "Enter choice (1, 2 or 3): ", newline=True))
             
-            if alg_choice == '1':
+            if algchoice == '1':
                 algorithm = 'AES'
-            elif alg_choice == '2':
+            elif algchoice == '2':
                 algorithm = 'TripleDES'
-            elif alg_choice == '3':
+            elif algchoice == '3':
                 algorithm = 'Blowfish'
             else:
-                print("\nInvalid algorithm choice. Please try again...")
+                print(color('[FAIL]', "Invalid algorithm choice. Please try again...", newline=True))
                 continue
             
-            # Encrypt the data
             try:
-                key, encdata = encrypt(ptext, algorithm)  # Updated to match the new function signature
+                key, encdata = encrypt(ptext, algorithm)
                 recid = dbsave(encdata, key, algorithm, dbpass, dbname)
-                print(f"\nEncrypted text: {encdata}")
-                print(f"\nData saved with record ID {recid} and algorithm {algorithm}")
+                print(color('[SUCCESS]', f"Encrypted text: {encdata}", newline=True))
+                print(color('[SUCCESS]', f"Algorithm: {algorithm}"))
+                print(color('[SUCCESS]', f"Record ID: {recid}"))
             except Exception as e:
-                print(f"\nError during encryption: {e}")
+                print(color('[FAIL]', f"Error during encryption: {e}", newline=True))
         
         elif choice == '2':
             try:
-                inrec = int(input("\nEnter the record ID to decrypt: "))
+                inrec = int(input(color('[INPUT]', "Enter the record ID to decrypt: ")))
                 rec = dbget(inrec, dbpass, dbname)
                 if rec:
                     ctext, key, algorithm = rec
                     dctext = decrypt(ctext, key, algorithm)
-                    print(f"\nDecrypted text: {dctext}")
+                    print(color('[SUCCESS]', f"Decrypted text: {dctext}", newline=True))
+                    print(color('[SUCCESS]', f"Algorithm: {algorithm}"))
                 else:
-                    print("\nRecord not found!")
+                    print(color('[FAIL]', "Record not found!", newline=True))
             except ValueError:
-                print("\nInvalid record ID. Please try again...")
+                print(color('[FAIL]', "Invalid record ID. Please try again...", newline=True))
             except Exception as e:
-                print(f"\nError during decryption: {e}")
+                print(color('[FAIL]', f"Error during decryption: {e}", newline=True))
         
         elif choice == '3':
-            print("\nProcess ended!\n")
+            print(color('[INFO]', "Process ended!\n", newline=True))
             break
         
         else:
-            print("\nInvalid choice. Please try again...")
+            print(color('[FAIL]', "Invalid choice. Please try again...", newline=True))
 
 if __name__ == "__main__":
     main()
