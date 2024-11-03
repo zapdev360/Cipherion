@@ -1,10 +1,10 @@
-import pyfiglet
 import shutil
+import pyfiglet
 
 def welcome():
-    # Get the terminal width to make the separator dynamic
+    # Get the terminal width
     terminal_width = shutil.get_terminal_size().columns
-
+    
     # Create a stylized welcome message
     welcmsg = pyfiglet.figlet_format("Cipherion", font="slant").strip()
     
@@ -16,7 +16,7 @@ def welcome():
     sep = "-" * terminal_width
     centered_welcome_text = "Welcome to Cipherion!".center(terminal_width)
     centered_description = "A robust tool for encrypting and securely storing sensitive information.".center(terminal_width)
-
+    
     # Display the welcome message with separators
     print(sep)
     print(centered_welcmsg)
@@ -25,5 +25,5 @@ def welcome():
     print(centered_description)
     print(sep)
 
-# Note: The call to welcome() was removed from this script as it is controlled by the main execution flow in main.py
-
+# Call the function to test the output
+welcome()
