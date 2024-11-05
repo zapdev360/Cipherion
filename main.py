@@ -34,8 +34,8 @@ def main():
             
             print()
             algotab()
-            print(color('[INFO]', "Encryption via AES is recommended, unless you have specific objective(s).", newline=True))
-            algchoice = input(color('[INPUT]', "Enter choice (1, 2 or 3): ", newline=True))
+            print(color('[INFO]', "Encryption via AES or ChaCha20Poly1305 is recommended, unless you have specific objective(s).", newline=True))
+            algchoice = input(color('[INPUT]', "Enter choice (1, 2, 3 or 4): ", newline=True))
             
             if algchoice == '1':
                 algorithm = 'AES'
@@ -43,6 +43,8 @@ def main():
                 algorithm = 'TripleDES'
             elif algchoice == '3':
                 algorithm = 'Blowfish'
+            elif algchoice == '4':
+                algorithm = 'ChaCha20Poly1305'
             else:
                 print(color('[FAIL]', "Invalid algorithm choice. Please try again...", newline=True))
                 continue
