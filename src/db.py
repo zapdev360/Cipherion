@@ -5,16 +5,15 @@ def dbcon(dbpass, dbname):
     try:
         con = mycon.connect(host='localhost', user='root', password=dbpass)
         cursor = con.cursor()
-        
         cursor.execute("SHOW DATABASES LIKE %s", (dbname,))
         if cursor.fetchone():
             print(color('[INFO]', f"Database '{dbname}' already exists.", newline=True))
-            print(color('[SUCCESS]', f"Connected to database '{dbname}'."))
+            print(color('[SUCCESS]', f"Connected to database '{dbname}'.")) 
         else:
             cursor.execute(f"CREATE DATABASE {dbname}")
             print(color('[SUCCESS]', f"Database '{dbname}' created!", newline=True))
             print(color('[SUCCESS]', f"Connected to database '{dbname}'."))
-        
+
         con.database = dbname
         cursor.close()
         con.close()
@@ -31,18 +30,21 @@ def dbsave(encdata, key, algorithm, dbpass, dbname):
     try:
         con = mycon.connect(host='localhost', user='root', password=dbpass, database=dbname)
         cursor = con.cursor()
-        
         cursor.execute('''CREATE TABLE IF NOT EXISTS data (
             id INT AUTO_INCREMENT PRIMARY KEY,
             ctext TEXT,
-            `key` BLOB,
-            algorithm VARCHAR(20)
+            `key` BLOB
         )''')
-        
-        cursor.execute('''INSERT INTO data (ctext, `key`, algorithm) VALUES (%s, %s, %s)''', (encdata, key, algorithm))
+        cursor.execute('''CREATE TABLE IF NOT EXISTS algo (
+            id INT PRIMARY KEY,
+            algorithm VARCHAR(20),
+            FOREIGN KEY (id) REFERENCES data(id)
+        )''')
+        cursor.execute('''INSERT INTO data (ctext, `key`) VALUES (%s, %s)''', (encdata, key))
         con.commit()
         recid = cursor.lastrowid
-        
+        cursor.execute('''INSERT INTO algo (id, algorithm) VALUES (%s, %s)''', (recid, algorithm))
+        con.commit()
         cursor.close()
         con.close()
         return recid
@@ -55,7 +57,6 @@ def dbget(inrec, dbpass, dbname):
     try:
         con = mycon.connect(host='localhost', user='root', password=dbpass, database=dbname)
         cursor = con.cursor()
-        
         cursor.execute('''SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = %s AND table_name = 'data' ''', (dbname,))
         if cursor.fetchone()[0] == 0:
             print(color('[INFO]', "Make sure to encrypt data before trying to decrypt.", newline=True))
@@ -64,12 +65,13 @@ def dbget(inrec, dbpass, dbname):
             con.close()
             return None
         
-        cursor.execute('''SELECT ctext, `key`, algorithm FROM data WHERE id = %s''', (inrec,))
+        cursor.execute('''SELECT data.ctext, data.`key`, algo.algorithm 
+                          FROM data
+                          JOIN algo ON data.id = algo.id
+                          WHERE data.id = %s''', (inrec,))
         res = cursor.fetchone()
-        
         cursor.close()
         con.close()
-
         return res
     
     except mycon.Error as err:
