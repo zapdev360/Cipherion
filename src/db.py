@@ -3,12 +3,13 @@ from src.utils.color import color
 
 def dbcon(dbpass, dbname):
     try:
+        print(color('[INFO]', "Initiating database connection...", newline=True))
         con = mycon.connect(host='localhost', user='root', password=dbpass)
         cursor = con.cursor()
         cursor.execute("SHOW DATABASES LIKE %s", (dbname,))
         if cursor.fetchone():
-            print(color('[INFO]', f"Database '{dbname}' already exists.", newline=True))
-            print(color('[SUCCESS]', f"Connected to database '{dbname}'.")) 
+            print(color('[INFO]', f"Database '{dbname}' already exists."))
+            print(color('[SUCCESS]', f"Connected to database '{dbname}'.",newline=True))
         else:
             cursor.execute(f"CREATE DATABASE {dbname}")
             print(color('[SUCCESS]', f"Database '{dbname}' created!", newline=True))
@@ -26,7 +27,7 @@ def dbcon(dbpass, dbname):
             print(color('[FAIL]', f"An unexpected error occurred: {err}", newline=True))
         return False
 
-def dbsave(encdata, key, algorithm, dbpass, dbname):
+def dbsave(encdata, key, algo, dbpass, dbname):
     try:
         con = mycon.connect(host='localhost', user='root', password=dbpass, database=dbname)
         cursor = con.cursor()
@@ -43,7 +44,7 @@ def dbsave(encdata, key, algorithm, dbpass, dbname):
         cursor.execute('''INSERT INTO data (ctext, `key`) VALUES (%s, %s)''', (encdata, key))
         con.commit()
         recid = cursor.lastrowid
-        cursor.execute('''INSERT INTO algo (id, algorithm) VALUES (%s, %s)''', (recid, algorithm))
+        cursor.execute('''INSERT INTO algo (id, algorithm) VALUES (%s, %s)''', (recid, algo))
         con.commit()
         cursor.close()
         con.close()
@@ -76,4 +77,25 @@ def dbget(inrec, dbpass, dbname):
     
     except mycon.Error as err:
         print(color('[FAIL]', f"An error occurred while retrieving data: {err}", newline=True))
+        return None
+
+def dbupdate(recid, encdata, key, dbpass, dbname):
+    try:
+        con = mycon.connect(host='localhost', user='root', password=dbpass, database=dbname)
+        cursor = con.cursor()
+        
+        cursor.execute('''UPDATE data SET ctext = %s, `key` = %s WHERE id = %s''', (encdata, key, recid))
+        con.commit()
+        
+        if cursor.rowcount == 0:
+            print(color('[FAIL]', "No record found with the provided ID. Update failed.", newline=True))
+        else:
+            print(color('[INFO]', f"Initiating key rotation with record ID {recid}...", newline=True))
+            print(color('[SUCCESS]', f"Record ID {recid} updated successfully!", newline=True))
+        
+        cursor.close()
+        con.close()
+    
+    except mycon.Error as err:
+        print(color('[FAIL]', f"An error occurred while updating data: {err}", newline=True))
         return None

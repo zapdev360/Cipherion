@@ -1,6 +1,6 @@
 from src.welcome import welcome, sep
 from src.process import encrypt, decrypt
-from src.db import dbcon, dbsave, dbget
+from src.db import dbcon, dbsave, dbget, dbupdate
 from src.utils.mask import maskpass
 from src.utils.color import color
 from src.utils.table import menutab, algotab
@@ -38,22 +38,22 @@ def main():
             algchoice = input(color('[INPUT]', "Enter choice (1, 2, 3 or 4): ", newline=True))
             
             if algchoice == '1':
-                algorithm = 'AES'
+                algo = 'AES'
             elif algchoice == '2':
-                algorithm = 'TripleDES'
+                algo = 'ChaCha20Poly1305'
             elif algchoice == '3':
-                algorithm = 'Blowfish'
+                algo = 'Blowfish'
             elif algchoice == '4':
-                algorithm = 'ChaCha20Poly1305'
+                algo = 'TripleDES'
             else:
                 print(color('[FAIL]', "Invalid algorithm choice. Please try again...", newline=True))
                 continue
             
             try:
-                key, encdata = encrypt(ptext, algorithm)
-                recid = dbsave(encdata, key, algorithm, dbpass, dbname)
+                key, encdata = encrypt(ptext, algo)
+                recid = dbsave(encdata, key, algo, dbpass, dbname)
                 print(color('[SUCCESS]', f"Encrypted text: {encdata}", newline=True))
-                print(color('[SUCCESS]', f"Algorithm: {algorithm}"))
+                print(color('[SUCCESS]', f"Algorithm: {algo}"))
                 print(color('[SUCCESS]', f"Record ID: {recid}"))
             except Exception as e:
                 print(color('[FAIL]', f"Error during encryption: {e}", newline=True))
@@ -63,10 +63,12 @@ def main():
                 inrec = int(input(color('[INPUT]', "Enter the record ID to decrypt: ")))
                 rec = dbget(inrec, dbpass, dbname)
                 if rec:
-                    ctext, key, algorithm = rec
-                    dctext = decrypt(ctext, key, algorithm)
+                    ctext, key, algo = rec
+                    dctext, new_key, new_encdata = decrypt(ctext, key, algo, rotate=True)
                     print(color('[SUCCESS]', f"Decrypted text: {dctext}", newline=True))
-                    print(color('[SUCCESS]', f"Algorithm: {algorithm}"))
+                    print(color('[SUCCESS]', f"Algorithm: {algo}"))
+                    dbupdate(inrec, new_encdata, new_key, dbpass, dbname)
+                    print(color('[SUCCESS]', "Key rotation was successful!"))
                 else:
                     print(color('[FAIL]', "Record not found!", newline=True))
             except ValueError:

@@ -12,11 +12,11 @@ def menutab():
 
 def algotab():
     algorithm_table = PrettyTable()
-    algorithm_table.field_names = ["Choice", "Algorithm"]
+    algorithm_table.field_names = ["Choice", "Algorithm", "Security"]
     
-    algorithm_table.add_row(["1", "AES"])
-    algorithm_table.add_row(["2", "TripleDES"])
-    algorithm_table.add_row(["3", "Blowfish"])
-    algorithm_table.add_row(["4", "ChaCha20Poly1305"])
+    algorithm_table.add_row(["1", "AES", "Industry Standard"])
+    algorithm_table.add_row(["2", "ChaCha20Poly1305", "Strong"])
+    algorithm_table.add_row(["3", "Blowfish", "Moderate"])
+    algorithm_table.add_row(["4", "TripleDES", "Weak"])
 
     print(algorithm_table)
