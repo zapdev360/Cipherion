@@ -1,19 +1,19 @@
 from src.welcome import welcome, sep
 from src.process import encrypt, decrypt
-from src.db import dbcon, dbsave, dbget, dbupdate
+from src.db import DatabaseHandler
 from src.utils.mask import maskpass
 from src.utils.color import color
 from src.utils.table import menutab, algotab
 
 def main():
+    dbhandler = DatabaseHandler()
     welcome()
     
     while True:
         prompt = color('[INPUT]', "Enter the password to connect to MySQL: ", newline=True)
         dbpass = maskpass(prompt)
         dbname = input(color('[INPUT]', "Enter the name of the database: "))
-        
-        if dbcon(dbpass, dbname):
+        if dbhandler.connect(dbpass, dbname):
             break
         else:
             print(color('[FAIL]', "Please try again..."))
@@ -51,7 +51,7 @@ def main():
             
             try:
                 key, encdata = encrypt(ptext, algo)
-                recid = dbsave(encdata, key, algo, dbpass, dbname)
+                recid = dbhandler.save(encdata, key, algo)
                 print(color('[SUCCESS]', f"Encrypted text: {encdata}", newline=True))
                 print(color('[SUCCESS]', f"Algorithm: {algo}"))
                 print(color('[SUCCESS]', f"Record ID: {recid}"))
@@ -61,13 +61,13 @@ def main():
         elif choice == '2':
             try:
                 inrec = int(input(color('[INPUT]', "Enter the record ID to decrypt: ")))
-                rec = dbget(inrec, dbpass, dbname)
+                rec = dbhandler.get(inrec)
                 if rec:
                     ctext, key, algo = rec
                     dctext, new_key, new_encdata = decrypt(ctext, key, algo, rotate=True)
                     print(color('[SUCCESS]', f"Decrypted text: {dctext}", newline=True))
                     print(color('[SUCCESS]', f"Algorithm: {algo}"))
-                    dbupdate(inrec, new_encdata, new_key, dbpass, dbname)
+                    dbhandler.update(inrec, new_encdata, new_key)
                     print(color('[SUCCESS]', "Key rotation was successful!"))
                 else:
                     print(color('[FAIL]', "Record not found!", newline=True))
@@ -77,6 +77,7 @@ def main():
                 print(color('[FAIL]', f"Error during decryption: {e}", newline=True))
         
         elif choice == '3':
+            dbhandler.close()
             print(color('[INFO]', "Process ended!\n", newline=True))
             break
         
