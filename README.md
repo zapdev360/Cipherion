@@ -9,7 +9,6 @@ The name "Cipherion" is associated exclusively with this project. Unauthorized u
 - [Installation ⚙️](#installation-️)
   - [Requirements](#requirements)
   - [Compatibility](#compatibility)
-  - [File structure](#file-structure)
 - [Usage ✅](#usage-)
   - [Project setup](#project-setup)
   - [Launching the application](#launching-the-application)
@@ -19,13 +18,15 @@ The name "Cipherion" is associated exclusively with this project. Unauthorized u
 - [License ℹ️](#license-ℹ️)
 
 ## Overview 🔍
-**Cipherion** is a robust tool for encrypting and securely storing sensitive information using [AES](https://www.nist.gov/publications/advanced-encryption-standard-aes) encryption. With its intuitive command-line interface and seamless [MySQL](https://dev.mysql.com/downloads/mysql) integration, this tool allows you to manage your data efficiently and securely.
+**Cipherion** is a robust tool for encrypting and securely storing sensitive information supporting multiple algorithms such as [AES](https://www.nist.gov/publications/advanced-encryption-standard-aes), [ChaCha20Poly1305](https://datatracker.ietf.org/doc/rfc8439/), [Blowfish](https://www.schneier.com/academic/blowfish/) and [TripleDES (3DES)](https://csrc.nist.gov/pubs/sp/800/67/r2/final). With its intuitive command-line interface and seamless [MySQL](https://dev.mysql.com/downloads/mysql) integration, this tool allows you to manage your data efficiently and securely.
 
 ## Features ✨
-- **[AES](https://www.nist.gov/publications/advanced-encryption-standard-aes) encryption**: Safeguard your data with industry-standard encryption methods.
-- **[MySQL](https://dev.mysql.com/downloads/mysql) Database integration**: Store and retrieve encrypted data with ease.
-- **Simple command-line interface**: User-friendly nature enables effortless navigation.
-- **Unique key generation**: Automatically create new encryption keys for each session to enhance security.
+- **Multiple Encryption Algorithms**: Choose from [AES](https://www.nist.gov/publications/advanced-encryption-standard-aes), [ChaCha20Poly1305](https://datatracker.ietf.org/doc/rfc8439/), [Blowfish](https://www.schneier.com/academic/blowfish/) or [TripleDES (3DES)](https://csrc.nist.gov/pubs/sp/800/67/r2/final) for flexible encryption options, depending on your security needs.
+- **MySQL Integration**: Connect to a [MySQL](https://dev.mysql.com/downloads/mysql) database to store all related encrypted data.
+- **Recovery Phrase**: An unique recovery phrase is generated with every encryption, ensuring data security.
+- **Automatic Key Rotation**: Supports automatic key rotation for the corresponding decrypted record, ensuring encryption keys are updated whilst maintaining data security.
+- **Secure Password Masking**: Database password is securely masked during input, protecting sensitive login credentials.
+- **User-friendly Command-Line Interface**: Detailed and intuitive prompts, along with informative tables guide you through seamless encryption and decryption.
 
 ## Installation ⚙️
 ### Requirements
@@ -35,22 +36,6 @@ The name "Cipherion" is associated exclusively with this project. Unauthorized u
 ### Compatibility
 - The application is compatible with [Python](https://www.python.org/downloads/) version 3.x and works on any OS that supports it (Windows, macOS, Linux).
 - [MySQL Community Server](https://dev.mysql.com/downloads/mysql) version 8.x or higher is recommended for optimal performance and compatibility.
-### File structure
-```markdown
-└── /root
-    └── 📁docs
-        └── CODE_OF_CONDUCT.md
-        └── CONTRIBUTING.md
-    └── 📁src
-        └── db.py
-        └── process.py
-        └── welcome.py
-    └── .gitignore
-    └── LICENSE
-    └── README.md
-    └── main.py
-    └── requirements.txt
-```
 
 ## Usage ✅
 ### Project setup
@@ -74,16 +59,16 @@ python main.py
 
 ## How it works ❓
 1. **Connecting to MySQL**:
-    - Upon launching, the application prompts you to enter your [MySQL](https://dev.mysql.com/downloads/mysql) root password and the desired database name. It checks for the database's existence and creates it if necessary.
+    - Upon launching the application, you are prompted to enter your [MySQL](https://dev.mysql.com/downloads/mysql) root password and specify the database name. The application checks whether the database exists and creates one if it doesn’t, ensuring a seamless setup for secure data storage.
 
 2. **Encrypting data**:
-    - You can choose to encrypt data by entering the text you wish to secure. The application generates a unique key and initialization vector (IV) for [AES](https://www.nist.gov/publications/advanced-encryption-standard-aes) encryption, then stores the encrypted data in the database.
+    - To encrypt your data, simply input the text you want to secure. You’ll then be prompted to choose an encryption algorithm ([AES](https://www.nist.gov/publications/advanced-encryption-standard-aes), [ChaCha20Poly1305](https://datatracker.ietf.org/doc/rfc8439/), [Blowfish](https://www.schneier.com/academic/blowfish/) or [TripleDES (3DES)](https://csrc.nist.gov/pubs/sp/800/67/r2/final)). The application generates an unique recovery phrase, encrypted text, encryption key and a nonce/initialization vector (depending on the chosen algorithm) and thereby encrypts your data.
 
 3. **Storing encrypted data**:
-    - The application saves both the encrypted text and the encryption key into a [MySQL](https://dev.mysql.com/downloads/mysql) table. Each record is assigned a unique ID for easy retrieval.
+    - The application stores the encrypted text, encryption key, hashed recovery phrase and corresponding algorithm in the database. Each encrypted record is linked to a unique ID, making it easy to retrieve and manage.
 
 4. **Decrypting data**:
-    - To decrypt, you input the record ID associated with the encrypted entry. The application retrieves the corresponding encrypted text and key from the database, then decrypts the text using the key, revealing the original message.
+    - To decrypt your data, you need to enter the corresponding recovery phrase. The application hashes the recovery phrase input, and matches it against stored hashed recovery phrase(s). If valid, it retrieves the corresponding record id, encrypted text and key from the database and decrypts the data, revealing the original message. Additionally, the application supports automatic key rotation, ensuring re-encryption of corresponding data record with new encrypted data and encryption key.
 
 ## Contributing 🤝
 We welcome contributions to enhance **Cipherion**! For detailed instructions on how to contribute, please refer to [CONTRIBUTING.md](docs/CONTRIBUTING.md) and follow [CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md). These documents include the contributing guidelines and the code of conduct to be followed.
