@@ -60,7 +60,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community owner responsible for enforcement at
-[thelegendev](https://discord.com/users/816250247616659489).
+[zapdev360](https://discord.com/users/816250247616659489).
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the

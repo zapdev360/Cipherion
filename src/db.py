@@ -1,13 +1,12 @@
 import mysql.connector as mycon
-
 from src.utils.color import color
 from mysql.connector.types import RowType
 from typing import Optional
 
-
-class DatabaseHandler:
+class DBhandler:
     dbname: str = None
     con: mycon.MySQLConnection = None
+    
     
     def connect(self, dbpass: str, dbname: str) -> bool:
         self.dbname = dbname
@@ -19,11 +18,12 @@ class DatabaseHandler:
             cursor.execute("SHOW DATABASES LIKE %s", (dbname,))
             if cursor.fetchone():
                 print(color('[INFO]', f"Database '{dbname}' already exists."))
-                print(color('[SUCCESS]', f"Connected to database '{dbname}'.",newline=True))
+                print(color('[SUCCESS]', f"Connected to database '{dbname}'.", newline=True))
             else:
                 cursor.execute(f"CREATE DATABASE {dbname}")
                 print(color('[SUCCESS]', f"Database '{dbname}' created!", newline=True))
                 print(color('[SUCCESS]', f"Connected to database '{dbname}'."))
+
             cursor.close()
             con.database = dbname
             self.con = con
@@ -36,9 +36,10 @@ class DatabaseHandler:
                 print(color('[FAIL]', f"An unexpected error occurred: {err}", newline=True))
             return False
 
+
     def save(self, encdata: str, key: str, algo: str) -> Optional[int]:
         try:
-            self.test_connection_status()
+            self.testcon()
             cursor = self.con.cursor()
 
             cursor.execute('''CREATE TABLE IF NOT EXISTS data (
@@ -63,16 +64,46 @@ class DatabaseHandler:
             print(color('[FAIL]', f"An error occurred while saving data: {err}", newline=True))
             return None
 
+
+    def saverhash(self, recid: int, rhash: bytes) -> Optional[int]:
+        try:
+            self.testcon()
+            cursor = self.con.cursor()
+
+            cursor.execute('''CREATE TABLE IF NOT EXISTS validate (
+                id INT PRIMARY KEY,
+                hash BLOB,
+                FOREIGN KEY (id) REFERENCES data(id)
+            )''')
+            cursor.execute('''INSERT INTO validate (id, hash) VALUES (%s, %s)''', (recid, rhash))
+            self.con.commit()
+            cursor.close()
+            return recid
+        
+        except mycon.Error as err:
+            print(color('[FAIL]', f"An error occurred while saving recovery hash: {err}", newline=True))
+            return None
+
+
+    def getrecid(self, rhash: bytes) -> Optional[int]:
+        try:
+            self.testcon()
+            cursor = self.con.cursor()
+
+            cursor.execute('''SELECT id FROM validate WHERE hash = %s''', (rhash,))
+            res = cursor.fetchone()
+            cursor.close()
+            return res[0] if res else None
+        
+        except mycon.Error as err:
+            print(color('[INFO]', f"Make sure to encrypt data before trying to decrypt.", newline=True))
+            return None
+
+
     def get(self, inrec: int) -> Optional[RowType]:
         try:
-            self.test_connection_status()
+            self.testcon()
             cursor = self.con.cursor()
-            cursor.execute('''SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = %s AND table_name = 'data' ''', (self.dbname,))
-            if cursor.fetchone()[0] == 0:
-                print(color('[INFO]', "Make sure to encrypt data before trying to decrypt.", newline=True))
-                print(color('[FAIL]', f"No data exists in the database '{self.dbname}'!"))
-                cursor.close()
-                return None
             cursor.execute('''SELECT data.ctext, data.`key`, algo.algorithm 
                             FROM data
                             JOIN algo ON data.id = algo.id
@@ -85,9 +116,10 @@ class DatabaseHandler:
             print(color('[FAIL]', f"An error occurred while retrieving data: {err}", newline=True))
             return None
 
+
     def update(self, recid, encdata, key) -> None:
         try:
-            self.test_connection_status()
+            self.testcon()
             cursor = self.con.cursor()
             cursor.execute('''UPDATE data SET ctext = %s, `key` = %s WHERE id = %s''', (encdata, key, recid))
             self.con.commit()
@@ -100,11 +132,12 @@ class DatabaseHandler:
 
         except mycon.Error as err:
             print(color('[FAIL]', f"An error occurred while updating data: {err}", newline=True))
-            return None
-        
-    def test_connection_status(self) -> None:
+
+
+    def testcon(self) -> None:
         if not self.con:
-            raise Exception("Database is not connected..")
+            raise Exception(color('[FAIL]', "Database is not connected!", newline=True))
+
 
     def close(self) -> None:
         if self.con:

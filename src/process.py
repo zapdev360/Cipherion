@@ -1,8 +1,10 @@
-from cryptography.hazmat.primitives.ciphers import Cipher as CipherClass, algorithms as alg, modes
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms as alg, modes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM, ChaCha20Poly1305
 from cryptography.hazmat.primitives import padding as pd
 import os
 import base64 as b64
+import hashlib
+import mnemonic
 import warnings
 from cryptography.utils import CryptographyDeprecationWarning
 from src.utils.color import color
@@ -16,10 +18,22 @@ algos = {
     'ChaCha20Poly1305': ChaCha20Poly1305
 }
 
+
+def genrphrase():
+    mconfig = mnemonic.Mnemonic("english")
+    rphrase = mconfig.generate(strength=128)
+    rhash = hashlib.sha256(rphrase.encode()).digest()
+    return rphrase, rhash
+
+
+def hashrphrase(phrase: str) -> bytes:
+    return hashlib.sha256(phrase.encode()).digest()
+
+
 def encrypt(ptext, algo='AES', suppress=False):
     if not suppress:
         print(color('[INFO]', "Initiating encryption...", newline=True))
-    
+
     if algo not in algos:
         raise ValueError(color('[FAIL]', f"Unsupported algorithm: {algo}", newline=True))
 
@@ -44,7 +58,7 @@ def encrypt(ptext, algo='AES', suppress=False):
         key = os.urandom(ksize)
         ivsize = 8
         iv = os.urandom(ivsize)
-        cipher = CipherClass(algos[algo](key), modes.CBC(iv))
+        cipher = Cipher(algos[algo](key), modes.CBC(iv))
         enc = cipher.encryptor()
         pr = pd.PKCS7(algos[algo].block_size).padder()
         pdata = pr.update(ptext.encode()) + pr.finalize()
@@ -68,7 +82,7 @@ def decrypt(ctext, key, algo='AES', rotate=False, suppress=False):
         try:
             ptext = cipher.decrypt(nonce, ctext, None)
         except Exception as e:
-            raise ValueError("Decryption failed or the data is tampered with.")
+            raise ValueError(color('[FAIL]', "Decryption failed or the data has been tampered with!", newline=True))
     
     elif algo == 'AES':
         encdata = b64.b64decode(ctext)
@@ -78,22 +92,22 @@ def decrypt(ctext, key, algo='AES', rotate=False, suppress=False):
         try:
             ptext = cipher.decrypt(nonce, ctext, None)
         except Exception as e:
-            raise ValueError("Decryption failed or the data is tampered with.")
+            raise ValueError(color('[FAIL]', "Decryption failed or the data has been tampered with!", newline=True))
 
     else:
         encdata = b64.b64decode(ctext)
         ivsize = 8
         iv = encdata[:ivsize]
         ctext = encdata[ivsize:]
-        cipher = CipherClass(algos[algo](key), modes.CBC(iv))
+        cipher = Cipher(algos[algo](key), modes.CBC(iv))
         dec = cipher.decryptor()
         pdata = dec.update(ctext) + dec.finalize()
         upr = pd.PKCS7(algos[algo].block_size).unpadder()
         ptext = upr.update(pdata) + upr.finalize()
 
     if rotate:
-        new_key, new_encdata = encrypt(ptext.decode('utf-8'), algo, suppress=True)
-        return ptext.decode('utf-8'), new_key, new_encdata
+        newkey, newencdata = encrypt(ptext.decode('utf-8'), algo, suppress=True)
+        return ptext.decode('utf-8'), newkey, newencdata
 
     return ptext.decode('utf-8')
 

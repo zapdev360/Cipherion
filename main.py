@@ -1,12 +1,12 @@
 from src.welcome import welcome, sep
-from src.process import encrypt, decrypt
-from src.db import DatabaseHandler
+from src.process import encrypt, decrypt, genrphrase, hashrphrase
+from src.db import DBhandler
 from src.utils.mask import maskpass
 from src.utils.color import color
 from src.utils.table import menutab, algotab
 
 def main():
-    dbhandler = DatabaseHandler()
+    dbhandler = DBhandler()
     welcome()
     
     while True:
@@ -52,25 +52,39 @@ def main():
             try:
                 key, encdata = encrypt(ptext, algo)
                 recid = dbhandler.save(encdata, key, algo)
+                rphrase, rhash = genrphrase()
+                
+                dbhandler.saverhash(recid, rhash)
+                
                 print(color('[SUCCESS]', f"Encrypted text: {encdata}", newline=True))
                 print(color('[SUCCESS]', f"Algorithm: {algo}"))
                 print(color('[SUCCESS]', f"Record ID: {recid}"))
+                print(color('[INFO]', f"Recovery phrase: {rphrase}", newline=True))
+                print(color('[INFO]', "Please save this recovery phrase securely, as it won't be shown again!", newline=True))
+                
             except Exception as e:
                 print(color('[FAIL]', f"Error during encryption: {e}", newline=True))
         
         elif choice == '2':
             try:
-                inrec = int(input(color('[INPUT]', "Enter the record ID to decrypt: ")))
-                rec = dbhandler.get(inrec)
-                if rec:
-                    ctext, key, algo = rec
-                    dctext, new_key, new_encdata = decrypt(ctext, key, algo, rotate=True)
-                    print(color('[SUCCESS]', f"Decrypted text: {dctext}", newline=True))
-                    print(color('[SUCCESS]', f"Algorithm: {algo}"))
-                    dbhandler.update(inrec, new_encdata, new_key)
-                    print(color('[SUCCESS]', "Key rotation was successful!"))
+                rphrase = input(color('[INPUT]', "Enter the recovery phrase: "))
+                rhash = hashrphrase(rphrase)
+                recid = dbhandler.getrecid(rhash)
+                
+                if recid:
+                    rec = dbhandler.get(recid)
+                    if rec:
+                        ctext, key, algo = rec
+                        dctext, newkey, newencdata = decrypt(ctext, key, algo, rotate=True)
+                        print(color('[SUCCESS]', f"Decrypted text: {dctext}", newline=True))
+                        print(color('[SUCCESS]', f"Algorithm: {algo}"))
+                        dbhandler.update(recid, newencdata, newkey)
+                        print(color('[SUCCESS]', "Key rotation was successful!"))
+                    else:
+                        print(color('[FAIL]', "Record not found!", newline=True))
                 else:
-                    print(color('[FAIL]', "Record not found!", newline=True))
+                    print(color('[FAIL]', "Invalid recovery phrase. Please try again...", newline=True))
+            
             except ValueError:
                 print(color('[FAIL]', "Invalid record ID. Please try again...", newline=True))
             except Exception as e:
@@ -83,6 +97,7 @@ def main():
         
         else:
             print(color('[FAIL]', "Invalid choice. Please try again...", newline=True))
+
 
 if __name__ == "__main__":
     main()
