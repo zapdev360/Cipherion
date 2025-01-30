@@ -154,8 +154,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# Backup
+# Misc
 backup.txt
+run.bat
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

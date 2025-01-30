@@ -1,22 +1,22 @@
 from prettytable import PrettyTable
 
 def menutab():
-    menu_table = PrettyTable()
-    menu_table.field_names = ["Choice", "Action"]
+    menutab = PrettyTable()
+    menutab.field_names = ["Choice", "Action"]
     
-    menu_table.add_row(["1", "Encrypt Data"])
-    menu_table.add_row(["2", "Decrypt Data"])
-    menu_table.add_row(["3", "Exit"])
+    menutab.add_row(["1", "Encrypt Data"])
+    menutab.add_row(["2", "Decrypt Data"])
+    menutab.add_row(["3", "Exit"])
 
-    print(menu_table)
+    print(menutab)
 
 def algotab():
-    algorithm_table = PrettyTable()
-    algorithm_table.field_names = ["Choice", "Algorithm", "Security"]
+    algotab = PrettyTable()
+    algotab.field_names = ["Choice", "Algorithm", "Security"]
     
-    algorithm_table.add_row(["1", "AES", "Industry Standard"])
-    algorithm_table.add_row(["2", "ChaCha20Poly1305", "Strong"])
-    algorithm_table.add_row(["3", "Blowfish", "Moderate"])
-    algorithm_table.add_row(["4", "TripleDES", "Weak"])
+    algotab.add_row(["1", "AES", "Industry Standard"])
+    algotab.add_row(["2", "ChaCha20Poly1305", "Strong"])
+    algotab.add_row(["3", "Blowfish", "Moderate"])
+    algotab.add_row(["4", "TripleDES", "Weak"])
 
-    print(algorithm_table)
+    print(algotab)

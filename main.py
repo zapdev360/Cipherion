@@ -1,16 +1,17 @@
-from src.welcome import welcome, sep
-from src.process import encrypt, decrypt, genrphrase, hashrphrase
 from src.db import DBhandler
+from src.process import ProcessHandler
+from src.welcome import welcome, sep
 from src.utils.mask import maskpass
 from src.utils.color import color
 from src.utils.table import menutab, algotab
 
 def main():
     dbhandler = DBhandler()
+    phandler = ProcessHandler()
     welcome()
-    
+
     while True:
-        prompt = color('[INPUT]', "Enter the password to connect to MySQL: ", newline=True)
+        prompt = color('[INPUT]', "Enter the password for connecting to MySQL: ", newline=True)
         dbpass = maskpass(prompt)
         dbname = input(color('[INPUT]', "Enter the name of the database: "))
         if dbhandler.connect(dbpass, dbname):
@@ -19,7 +20,7 @@ def main():
             print(color('[FAIL]', "Please try again..."))
     
     while True:
-        print('\n', sep, '\n')
+        print('\n' + sep + '\n')
         menutab()
         choice = input(color('[INPUT]', "Enter choice (1, 2 or 3): ", newline=True))
         
@@ -50,9 +51,9 @@ def main():
                 continue
             
             try:
-                key, encdata = encrypt(ptext, algo)
+                key, encdata = phandler.encrypt(ptext, algo)
                 recid = dbhandler.save(encdata, key, algo)
-                rphrase, rhash = genrphrase()
+                rphrase, rhash = phandler.genrphrase()
                 
                 dbhandler.saverhash(recid, rhash)
                 
@@ -68,14 +69,14 @@ def main():
         elif choice == '2':
             try:
                 rphrase = input(color('[INPUT]', "Enter the recovery phrase: "))
-                rhash = hashrphrase(rphrase)
+                rhash = phandler.hashrphrase(rphrase)
                 recid = dbhandler.getrecid(rhash)
                 
                 if recid:
                     rec = dbhandler.get(recid)
                     if rec:
                         ctext, key, algo = rec
-                        dctext, newkey, newencdata = decrypt(ctext, key, algo, rotate=True)
+                        dctext, newkey, newencdata = phandler.decrypt(ctext, key, algo, rotate=True)
                         print(color('[SUCCESS]', f"Decrypted text: {dctext}", newline=True))
                         print(color('[SUCCESS]', f"Algorithm: {algo}"))
                         dbhandler.update(recid, newencdata, newkey)

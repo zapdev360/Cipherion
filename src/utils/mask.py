@@ -3,7 +3,7 @@ import readchar
 
 def maskpass(prompt):
     print(prompt, end="", flush=True)  
-    password = ""
+    pwd = ""
     while True:
         char = readchar.readchar() 
 
@@ -11,12 +11,12 @@ def maskpass(prompt):
             print()  
             break
         elif char == "\x7f" or char == "\b":
-            if len(password) > 0:
-                password = password[:-1]  
+            if len(pwd) > 0:
+                pwd = pwd[:-1]  
                 sys.stdout.write("\b \b") 
                 sys.stdout.flush()
         else:
-            password += char
+            pwd += char
             sys.stdout.write("*")
             sys.stdout.flush()
-    return password
+    return pwd
